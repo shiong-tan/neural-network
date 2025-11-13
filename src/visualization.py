@@ -60,6 +60,7 @@ def plot_decision_boundary(
     X: np.ndarray,
     y: np.ndarray,
     resolution: int = 200,
+    threshold: float = 0.5,
     figsize: Tuple[int, int] = (10, 8),
     save_path: Optional[str] = None
 ):
@@ -71,6 +72,7 @@ def plot_decision_boundary(
         X: Input data, shape (n_samples, 2)
         y: Labels, shape (n_samples,)
         resolution: Grid resolution for boundary
+        threshold: Decision threshold for class boundary line
         figsize: Figure size (width, height)
         save_path: Optional path to save figure
 
@@ -104,7 +106,7 @@ def plot_decision_boundary(
     plt.colorbar(label='Model Output')
 
     # Plot decision threshold
-    plt.contour(xx, yy, Z, levels=[0.5], colors='black', linewidths=2, linestyles='--')
+    plt.contour(xx, yy, Z, levels=[threshold], colors='black', linewidths=2, linestyles='--')
 
     # Plot data points
     scatter = plt.scatter(X[:, 0], X[:, 1], c=y, cmap='RdYlBu',
