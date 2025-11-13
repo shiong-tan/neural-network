@@ -1,6 +1,6 @@
 # Neural Network from Scratch: A Pedagogical Implementation
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shiong-tan/neural-network/blob/main/notebooks/neural_network_tutorial.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shiong-tan/neural-network/blob/master/notebooks/neural_network_tutorial.ipynb)
 
 A pedagogical implementation of a one-hidden-layer neural network built from mathematical first principles. This project demonstrates the full journey from manual NumPy backpropagation to a production-ready PyTorch implementation.
 
