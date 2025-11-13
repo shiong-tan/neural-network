@@ -61,6 +61,7 @@ def plot_decision_boundary(
     y: np.ndarray,
     resolution: int = 200,
     threshold: float = 0.5,
+    title: str = 'Decision Boundary',
     figsize: Tuple[int, int] = (10, 8),
     save_path: Optional[str] = None
 ):
@@ -73,6 +74,7 @@ def plot_decision_boundary(
         y: Labels, shape (n_samples,)
         resolution: Grid resolution for boundary
         threshold: Decision threshold for class boundary line
+        title: Plot title
         figsize: Figure size (width, height)
         save_path: Optional path to save figure
 
@@ -80,7 +82,7 @@ def plot_decision_boundary(
         >>> from src.data import generate_xor_data
         >>> model = OneHiddenLayerMLP(input_dim=2, hidden_dim=4)
         >>> X, y = generate_xor_data(n_samples=200)
-        >>> plot_decision_boundary(model, X, y)
+        >>> plot_decision_boundary(model, X, y, title='XOR Decision Boundary')
     """
     if X.shape[1] != 2:
         raise ValueError("Decision boundary plot requires 2D input data")
@@ -115,7 +117,7 @@ def plot_decision_boundary(
 
     plt.xlabel('$x_1$', fontsize=12)
     plt.ylabel('$x_2$', fontsize=12)
-    plt.title('Decision Boundary', fontsize=14, fontweight='bold')
+    plt.title(title, fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
 
     if save_path:
@@ -128,6 +130,7 @@ def plot_decision_boundary(
 def plot_dataset(
     X: np.ndarray,
     y: np.ndarray,
+    title: str = 'Dataset',
     figsize: Tuple[int, int] = (8, 6),
     save_path: Optional[str] = None
 ):
@@ -137,13 +140,14 @@ def plot_dataset(
     Args:
         X: Input data, shape (n_samples, 2)
         y: Labels, shape (n_samples,)
+        title: Plot title
         figsize: Figure size (width, height)
         save_path: Optional path to save figure
 
     Examples:
         >>> from src.data import generate_xor_data
         >>> X, y = generate_xor_data(n_samples=200)
-        >>> plot_dataset(X, y)
+        >>> plot_dataset(X, y, title='XOR Problem')
     """
     if X.shape[1] != 2:
         raise ValueError("Dataset plot requires 2D input data")
@@ -157,7 +161,7 @@ def plot_dataset(
 
     plt.xlabel('$x_1$', fontsize=12)
     plt.ylabel('$x_2$', fontsize=12)
-    plt.title('Dataset', fontsize=14, fontweight='bold')
+    plt.title(title, fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.axis('equal')
 
