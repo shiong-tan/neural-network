@@ -2,7 +2,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shiong-tan/neural-network/blob/main/notebooks/neural_network_tutorial.ipynb)
 
-A complete, pedagogical implementation of a one-hidden-layer neural network built from mathematical first principles. This project demonstrates the full journey from manual NumPy backpropagation to production-ready PyTorch implementations.
+A pedagogical implementation of a one-hidden-layer neural network built from mathematical first principles. This project demonstrates the full journey from manual NumPy backpropagation to a production-ready PyTorch implementation.
 
 ## 🎯 Learning Objectives
 
@@ -148,12 +148,8 @@ pytest tests/ -v
 
 ## 🤝 Contributing
 
-This is a pedagogical project designed for learning. If you find issues or have suggestions for improving clarity, please open an issue!
+This is a project designed for learning. If you find issues or have suggestions for improving clarity, please open an issue!
 
 ## 📝 License
 
 MIT License - feel free to use for educational purposes.
-
-## 🙏 Acknowledgments
-
-Based on foundational neural network concepts and designed for maximum pedagogical clarity.
