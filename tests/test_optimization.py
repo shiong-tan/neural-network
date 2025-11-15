@@ -505,3 +505,123 @@ class TestEdgeCases:
         assert len(history['train_loss']) == 5
         # Parameters should barely change
         assert all(np.isfinite(loss) for loss in history['train_loss'])
+
+
+class TestDiagnosticTracking:
+    """Test diagnostic tracking features."""
+
+    def test_train_returns_grad_norms(self):
+        """train should return gradient norms in history."""
+        model = OneHiddenLayerMLP(input_dim=2, hidden_dim=4)
+        optimizer = SGD(learning_rate=0.1)
+        X = np.random.randn(50, 2)
+        y = np.random.randn(50)
+
+        history = train(model, X, y, optimizer, n_epochs=10, verbose=False)
+
+        assert 'grad_norms' in history
+        assert len(history['grad_norms']) == 10
+        assert all(isinstance(norm, float) for norm in history['grad_norms'])
+        assert all(norm >= 0 for norm in history['grad_norms'])
+
+    def test_train_returns_relu_activity(self):
+        """train should return ReLU activity in history."""
+        model = OneHiddenLayerMLP(input_dim=2, hidden_dim=4, activation='relu')
+        optimizer = SGD(learning_rate=0.1)
+        X = np.random.randn(50, 2)
+        y = np.random.randn(50)
+
+        history = train(model, X, y, optimizer, n_epochs=10, verbose=False)
+
+        assert 'relu_activity' in history
+        assert len(history['relu_activity']) == 10
+        assert all(isinstance(activity, float) for activity in history['relu_activity'])
+        assert all(0 <= activity <= 100 for activity in history['relu_activity'])
+
+    def test_grad_norms_are_positive(self):
+        """Gradient norms should always be non-negative."""
+        model = OneHiddenLayerMLP(input_dim=2, hidden_dim=3)
+        optimizer = SGD(learning_rate=0.1)
+        X = np.random.randn(100, 2)
+        y = np.random.randn(100)
+
+        history = train(model, X, y, optimizer, n_epochs=20, verbose=False)
+
+        assert all(norm >= 0 for norm in history['grad_norms'])
+        assert all(np.isfinite(norm) for norm in history['grad_norms'])
+
+    def test_relu_activity_in_valid_range(self):
+        """ReLU activity should be between 0 and 100 percent."""
+        model = OneHiddenLayerMLP(input_dim=2, hidden_dim=8, activation='relu')
+        optimizer = SGD(learning_rate=0.5)
+        X, y = generate_xor_data(n_samples=100, noise=0.1)
+
+        history = train(model, X, y, optimizer, n_epochs=50, verbose=False)
+
+        assert all(0 <= activity <= 100 for activity in history['relu_activity'])
+        # ReLU should have some active neurons
+        assert max(history['relu_activity']) > 0
+
+    def test_grad_norms_tracked_throughout_training(self):
+        """Gradient norms should be tracked throughout training."""
+        model = OneHiddenLayerMLP(input_dim=2, hidden_dim=4)
+        optimizer = SGD(learning_rate=0.5)
+        X, y = generate_xor_data(n_samples=200, noise=0.05)
+
+        history = train(model, X, y, optimizer, n_epochs=100, verbose=False)
+
+        # All gradient norms should be positive and finite
+        assert all(norm > 0 for norm in history['grad_norms'])
+        assert all(np.isfinite(norm) for norm in history['grad_norms'])
+        # Gradient norms should vary (not all the same)
+        assert len(set(history['grad_norms'])) > 1
+
+    def test_diagnostics_with_validation_set(self):
+        """Diagnostics should work with validation set."""
+        model = OneHiddenLayerMLP(input_dim=2, hidden_dim=4)
+        optimizer = SGD(learning_rate=0.1)
+        X_train = np.random.randn(100, 2)
+        y_train = np.random.randn(100)
+        X_val = np.random.randn(50, 2)
+        y_val = np.random.randn(50)
+
+        history = train(
+            model, X_train, y_train, optimizer,
+            n_epochs=10,
+            X_val=X_val,
+            y_val=y_val,
+            verbose=False
+        )
+
+        assert 'grad_norms' in history
+        assert 'relu_activity' in history
+        assert len(history['grad_norms']) == 10
+        assert len(history['relu_activity']) == 10
+
+    def test_diagnostics_with_different_activations(self):
+        """Diagnostics should work with different activation functions."""
+        # Test ReLU activation
+        model_relu = OneHiddenLayerMLP(input_dim=2, hidden_dim=4, activation='relu')
+        optimizer = SGD(learning_rate=0.1)
+        X = np.random.randn(50, 2)
+        y = np.random.randn(50)
+
+        history_relu = train(model_relu, X, y, optimizer, n_epochs=5, verbose=False)
+
+        assert 'grad_norms' in history_relu
+        assert 'relu_activity' in history_relu
+        assert len(history_relu['grad_norms']) == 5
+        assert len(history_relu['relu_activity']) == 5
+        # ReLU activity should be valid percentages
+        assert all(0 <= activity <= 100 for activity in history_relu['relu_activity'])
+
+        # Test Sigmoid activation
+        model_sigmoid = OneHiddenLayerMLP(input_dim=2, hidden_dim=4, activation='sigmoid')
+        history_sigmoid = train(model_sigmoid, X, y, optimizer, n_epochs=5, verbose=False)
+
+        assert 'grad_norms' in history_sigmoid
+        assert 'relu_activity' in history_sigmoid
+        assert len(history_sigmoid['grad_norms']) == 5
+        assert len(history_sigmoid['relu_activity']) == 5
+        # Sigmoid should have NaN for ReLU activity (not applicable)
+        assert all(np.isnan(activity) for activity in history_sigmoid['relu_activity'])

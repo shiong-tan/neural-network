@@ -234,7 +234,9 @@ def train(
         Dictionary with training history:
         {
             'train_loss': List of training losses per epoch,
-            'val_loss': List of validation losses per epoch (if validation data provided)
+            'val_loss': List of validation losses per epoch (if validation data provided),
+            'grad_norms': List of gradient L2 norms per epoch,
+            'relu_activity': List of ReLU activation percentages per epoch
         }
 
     Examples:
@@ -248,13 +250,59 @@ def train(
     """
     history = {
         'train_loss': [],
-        'val_loss': []
+        'val_loss': [],
+        'grad_norms': [],
+        'relu_activity': []
     }
 
     for epoch in range(n_epochs):
         # Train for one epoch
         train_loss = train_epoch(model, X_train, y_train, optimizer, batch_size)
         history['train_loss'].append(train_loss)
+
+        # Compute diagnostics on a sample batch
+        sample_indices = np.random.choice(len(X_train), min(32, len(X_train)), replace=False)
+        X_sample = X_train[sample_indices]
+        y_sample = y_train[sample_indices]
+
+        # Accumulate gradients for norm calculation
+        grad_W1 = np.zeros_like(model.layer1.W)
+        grad_b1 = np.zeros_like(model.layer1.b)
+        grad_W2 = np.zeros_like(model.layer2.W)
+        grad_b2 = np.zeros_like(model.layer2.b)
+        relu_active_counts = []
+
+        for i in range(len(X_sample)):
+            x = X_sample[i]
+            y = y_sample[i]
+            f = model.forward(x)
+            grads = model.backward(x, y, f)
+
+            grad_W1 += grads['dL_dW1']
+            grad_b1 += grads['dL_db1']
+            grad_W2 += grads['dL_dW2']
+            grad_b2 += grads['dL_db2']
+
+            # Track ReLU activity (percentage of active neurons) - only for ReLU activation
+            if model.activation_name == 'relu' and model.h1_cache is not None:
+                relu_active_counts.append(np.mean(model.h1_cache > 0))
+
+        # Compute gradient norm (L2 norm of all gradients)
+        grad_norm = np.sqrt(
+            np.sum((grad_W1 / len(X_sample)) ** 2) +
+            np.sum((grad_b1 / len(X_sample)) ** 2) +
+            np.sum((grad_W2 / len(X_sample)) ** 2) +
+            np.sum((grad_b2 / len(X_sample)) ** 2)
+        )
+        history['grad_norms'].append(float(grad_norm))
+
+        # Average ReLU activity across batch (only applicable for ReLU activation)
+        if relu_active_counts:  # List is non-empty only if using ReLU
+            relu_activity = np.mean(relu_active_counts) * 100  # Convert to percentage
+            history['relu_activity'].append(float(relu_activity))
+        else:
+            # For non-ReLU activations, store NaN to indicate metric not applicable
+            history['relu_activity'].append(float('nan'))
 
         # Evaluate on validation set if provided
         if X_val is not None and y_val is not None:

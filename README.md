@@ -89,7 +89,7 @@ All items completed:
 2. ✅ PyTorch re-implementation without autograd; numerical equivalence verified
 3. ✅ PyTorch with autograd; gradients match manual implementation
 4. ✅ nn.Module and nn.Sequential implementations; train with SGD
-5. ✅ Diagnostics: loss curves, gradient norms, ReLU activity tracking
+5. ✅ Diagnostics: loss curves, gradient L2 norms, and ReLU activity % across iterations
 6. ✅ GitHub hosting with README, one-click Colab badge, end-to-end execution
 
 ## 📊 Key Visualizations
@@ -97,7 +97,7 @@ All items completed:
 - Activation functions (ReLU, Sigmoid) and their derivatives
 - Computation graph showing forward/backward dependencies
 - Decision boundaries learned on XOR dataset
-- Training diagnostics (loss, gradients, activation statistics)
+- Training diagnostics (loss curves, gradient L2 norms, ReLU activity %)
 - Loss surface visualization for single parameters
 
 ## 🔬 Gradient Checking

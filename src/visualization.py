@@ -55,6 +55,75 @@ def plot_training_history(
         plt.show()
 
 
+def plot_diagnostics(
+    history: Dict[str, List[float]],
+    figsize: Tuple[int, int] = (15, 5),
+    save_path: Optional[str] = None
+):
+    """
+    Plot training diagnostics: loss, gradient norms, and ReLU activity.
+
+    Args:
+        history: Dictionary with 'train_loss', 'grad_norms', and 'relu_activity' keys
+        figsize: Figure size (width, height)
+        save_path: Optional path to save figure
+
+    Examples:
+        >>> history = {
+        ...     'train_loss': [0.5, 0.3, 0.2],
+        ...     'grad_norms': [1.2, 0.8, 0.5],
+        ...     'relu_activity': [65.0, 58.0, 52.0]
+        ... }
+        >>> plot_diagnostics(history)
+    """
+    fig, axes = plt.subplots(1, 3, figsize=figsize)
+    epochs = range(1, len(history['train_loss']) + 1)
+
+    # Plot 1: Training Loss
+    axes[0].plot(epochs, history['train_loss'], 'b-', linewidth=2)
+    if 'val_loss' in history and len(history['val_loss']) > 0:
+        axes[0].plot(epochs, history['val_loss'], 'r-', linewidth=2, label='Validation')
+        axes[0].legend(fontsize=10)
+    axes[0].set_xlabel('Epoch', fontsize=12)
+    axes[0].set_ylabel('Loss', fontsize=12)
+    axes[0].set_title('Training Loss', fontsize=14, fontweight='bold')
+    axes[0].grid(True, alpha=0.3)
+
+    # Plot 2: Gradient Norms
+    if 'grad_norms' in history and len(history['grad_norms']) > 0:
+        axes[1].plot(epochs, history['grad_norms'], 'g-', linewidth=2)
+        axes[1].set_xlabel('Epoch', fontsize=12)
+        axes[1].set_ylabel('Gradient L2 Norm', fontsize=12)
+        axes[1].set_title('Gradient Norms', fontsize=14, fontweight='bold')
+        axes[1].grid(True, alpha=0.3)
+
+    # Plot 3: ReLU Activity
+    if 'relu_activity' in history and len(history['relu_activity']) > 0:
+        # Check if values are valid (not all NaN - which indicates non-ReLU activation)
+        if not all(np.isnan(val) for val in history['relu_activity']):
+            axes[2].plot(epochs, history['relu_activity'], 'm-', linewidth=2)
+            axes[2].set_xlabel('Epoch', fontsize=12)
+            axes[2].set_ylabel('Active Neurons (%)', fontsize=12)
+            axes[2].set_title('ReLU Activity', fontsize=14, fontweight='bold')
+            axes[2].grid(True, alpha=0.3)
+            axes[2].set_ylim([0, 100])
+        else:
+            # ReLU activity not applicable (e.g., using sigmoid activation)
+            axes[2].text(0.5, 0.5, 'ReLU Activity\n(Not Applicable)',
+                        ha='center', va='center', fontsize=12,
+                        transform=axes[2].transAxes)
+            axes[2].set_xticks([])
+            axes[2].set_yticks([])
+
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+
+
 def plot_decision_boundary(
     model: OneHiddenLayerMLP,
     X: np.ndarray,
