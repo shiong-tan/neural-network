@@ -1,77 +1,81 @@
-# Neural Network from Scratch: A Pedagogical Implementation
+# Neural Network from Scratch
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shiong-tan/neural-network/blob/master/notebooks/neural_network_tutorial.ipynb)
 
-A pedagogical implementation of a one-hidden-layer neural network built from mathematical first principles. This project demonstrates the full journey from manual NumPy backpropagation to a production-ready PyTorch implementation.
+A one-hidden-layer MLP implemented from first principles in NumPy, with gradient checking to verify correctness and a progression through four levels of PyTorch abstraction.
 
-## 🎯 Learning Objectives
+This implementation includes:
+- Complete manual backpropagation with numerical gradient verification (< 1e-7 relative error)
+- Detailed mathematical derivations in code comments
+- Comprehensive test suite validating forward pass, backward pass, and NumPy-PyTorch equivalence
+- Training diagnostics including loss curves, gradient norms, and ReLU activation statistics
 
-1. **Mathematical Foundation**: Write down the forward map for a one-hidden-layer MLP
-2. **Backpropagation**: Derive the backward pass using the chain rule
-3. **Manual Implementation**: Implement the network and its gradients manually in NumPy
-4. **Framework Translation**: Reproduce in PyTorch (tensors → autograd → nn.Module → nn.Sequential)
+## What You'll Learn
 
-## 🚀 Quick Start
+Write a one-hidden-layer neural network from scratch and understand exactly what's happening at each step:
 
-### Requirements
+1. Forward propagation through affine layers and activation functions
+2. Backpropagation using the chain rule to compute gradients
+3. Manual implementation in NumPy with explicit gradient calculations
+4. PyTorch progression: manual tensors → autograd → nn.Module → nn.Sequential
 
-- Python 3.11 or higher
+## Quick Start
 
-### Local Installation
+**Requirements:** Python 3.11+
 
+**Local Installation:**
 ```bash
 git clone https://github.com/shiong-tan/neural-network.git
 cd neural-network
 pip install -r requirements.txt
 ```
 
-### Run the Tutorial
-
+**Run the interactive tutorial:**
 ```bash
 jupyter notebook notebooks/neural_network_tutorial.ipynb
 ```
 
-### Run Tests
-
+**Run tests:**
 ```bash
 pytest tests/
 ```
 
-### Run Minimal Example
-
+**Run minimal example:**
 ```bash
 python examples/minimal_example.py
 ```
 
-## 📚 Project Structure
-
-- `notebooks/` - Interactive Jupyter tutorial following the mathematical progression
-- `src/` - Modular implementation of all components
-  - `data.py` - Dataset generation (XOR, spiral patterns)
-  - `activations.py` - ReLU and Sigmoid with derivatives
-  - `layers.py` - Affine transformations and forward pass
-  - `models.py` - Complete MLP with manual backpropagation
-  - `loss.py` - Squared error loss and gradients
-  - `optimization.py` - SGD implementation and training loop
-  - `gradient_check.py` - Numerical gradient verification
-  - `pytorch_models.py` - PyTorch implementations (3 levels of abstraction)
-  - `visualization.py` - Plotting utilities
-- `tests/` - Comprehensive test suite
-- `examples/` - Minimal runnable examples
-
-## 🧮 Mathematical Foundation
-
-The one-hidden-layer MLP computes:
+## Project Structure
 
 ```
-a₁ = W₁x + b₁  ∈ ℝʰ    (first affine map)
-h₁ = φ(a₁)      ∈ ℝʰ    (activation)
-f  = W₂h₁ + b₂  ∈ ℝ     (output)
+├── src/                     # Core implementation
+│   ├── models.py           # MLP with manual backpropagation
+│   ├── layers.py           # Affine transformations
+│   ├── activations.py      # ReLU and Sigmoid (with derivatives)
+│   ├── loss.py             # Squared error loss
+│   ├── optimization.py     # SGD and training loop
+│   ├── gradient_check.py   # Numerical gradient verification
+│   ├── pytorch_models.py   # 4 PyTorch abstraction levels
+│   ├── data.py             # XOR and spiral datasets
+│   └── visualization.py    # Training diagnostics plots
+├── tests/                   # Comprehensive pytest suite
+├── notebooks/               # Interactive Jupyter tutorial
+└── examples/                # Minimal runnable examples
 ```
 
-**Loss**: L(θ; x, y) = ½(f(x; θ) - y)²
+## Network Architecture
 
-**Backpropagation** via chain rule:
+The MLP computes:
+
+```
+a₁ = W₁x + b₁  ∈ ℝʰ    (first affine transformation)
+h₁ = φ(a₁)      ∈ ℝʰ    (ReLU or Sigmoid activation)
+f  = W₂h₁ + b₂  ∈ ℝ     (scalar output)
+```
+
+**Loss function:** L(θ; x, y) = ½(f(x; θ) - y)²
+
+**Backpropagation** applies the chain rule to compute gradients:
 ```
 ∂L/∂W₂ = δf · h₁ᵀ
 ∂L/∂b₂ = δf
@@ -81,75 +85,77 @@ f  = W₂h₁ + b₂  ∈ ℝ     (output)
 ∂L/∂b₁ = δa₁
 ```
 
-## ✅ Capstone Checklist
+where δf = f - y.
 
-All items completed:
+## Implementation Details
 
-1. ✅ Manual NumPy forward/backward for 1-hidden-layer MLP with gradient check
-2. ✅ PyTorch re-implementation without autograd; numerical equivalence verified
-3. ✅ PyTorch with autograd; gradients match manual implementation
-4. ✅ nn.Module and nn.Sequential implementations; train with SGD
-5. ✅ Diagnostics: loss curves, gradient L2 norms, and ReLU activity % across iterations
-6. ✅ GitHub hosting with README, one-click Colab badge, end-to-end execution
-
-## 📊 Key Visualizations
-
-- Activation functions (ReLU, Sigmoid) and their derivatives
-- Computation graph showing forward/backward dependencies
-- Decision boundaries learned on XOR dataset
-- Training diagnostics (loss curves, gradient L2 norms, ReLU activity %)
-- Loss surface visualization for single parameters
-
-## 🔬 Gradient Checking
-
-Numerical gradient verification using finite differences:
+**Gradient Checking:** Every gradient is verified using finite differences. The relative error between analytical and numerical gradients is consistently below 1e-7, confirming the backpropagation implementation is correct.
 
 ```python
 from src.gradient_check import check_gradients
 
 errors = check_gradients(model, x, y, epsilon=1e-5)
-# All relative errors should be < 1e-3
+# All relative errors < 1e-7
 ```
 
-## 🎓 Pedagogical Flow
-
-The notebook follows a carefully structured progression:
-
-1. **Motivation** - Why build from scratch?
-2. **Building Blocks** - Affine maps and activations
-3. **Network Architecture** - Composing a one-hidden-layer MLP
-4. **Loss Function** - Measuring prediction quality
-5. **Backpropagation** - Deriving gradients via chain rule
-6. **NumPy Implementation** - Manual gradients with verification
-7. **PyTorch Evolution** - From tensors to high-level APIs
-8. **Best Practices** - Optimization tips and diagnostics
-9. **Summary** - Key insights and takeaways
-
-## 🧪 Testing
-
-Comprehensive test suite covering:
-
-- Activation function correctness
-- Forward pass shape consistency
-- Gradient correctness (numerical verification)
-- NumPy-PyTorch equivalence
-- Edge cases (zero gradients, saturation)
+**Testing:** The test suite covers activation functions, forward pass shape consistency, backward pass correctness, NumPy-PyTorch equivalence, and edge cases like zero gradients and activation saturation.
 
 ```bash
 pytest tests/ -v
 ```
 
-## 📖 References
+**PyTorch Progression:** Four implementations showing the evolution from low-level to framework-idiomatic code:
+1. `ManualTensorMLP` - Manual operations with PyTorch tensors (manual backward)
+2. `AutogradMLP` - nn.Parameter with automatic differentiation
+3. `ModuleMLP` - nn.Module with nn.Linear layers
+4. `SequentialMLP` - High-level nn.Sequential API
 
-- Backpropagation: The chain rule organized along the computation graph
-- PyTorch autograd: Automatic differentiation via reverse-mode AD
-- Gradient Descent optimization techniques
+**Training Diagnostics:** The training loop tracks and visualizes:
+- Training and validation loss curves
+- Gradient L2 norms per layer
+- ReLU activation percentage across iterations
+
+## What's Included
+
+**Completed implementation:**
+- Manual NumPy forward/backward for 1-hidden-layer MLP
+- Numerical gradient checking with < 1e-7 relative error
+- PyTorch implementations (manual tensors, autograd, nn.Module, nn.Sequential)
+- Training diagnostics (loss curves, gradient norms, ReLU activity)
+- Interactive Jupyter notebook tutorial
+- One-click Colab execution
+
+**Visualizations:**
+- Activation functions and their derivatives
+- Computation graph with forward/backward dependencies
+- Decision boundaries on XOR and spiral datasets
+- Training metrics over iterations
+- Loss surface plots for individual parameters
+
+## Notebook Structure
+
+The tutorial walks through:
+
+1. Motivation and mathematical setup
+2. Building blocks: affine maps and activations
+3. Network architecture and forward pass
+4. Loss function and prediction quality
+5. Backpropagation via chain rule
+6. NumPy implementation with gradient verification
+7. PyTorch evolution through abstraction levels
+8. Optimization techniques and diagnostics
+
+## References
+
+- Chain rule and backpropagation along computation graphs
+- PyTorch autograd (reverse-mode automatic differentiation)
+- Gradient descent optimization
 - Matrix calculus conventions
 
-## 🤝 Contributing
+## Contributing
 
-This is a project designed for learning. If you find issues or have suggestions for improving clarity, please open an issue!
+Found an issue or have suggestions for clarity? Open an issue.
 
-## 📝 License
+## License
 
-MIT License - feel free to use for educational purposes.
+MIT License
